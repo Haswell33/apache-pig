@@ -1,3 +1,33 @@
+/*
+Plik źródłowy (HDFS, zwiera wiersz nagłówkowy z nazwami kolumn, wartości zawierające przecinek jako separator ujęte są w (quotechar) cudzysłów):
+	/input/assignments/spotify_tracks/spotify_tracks_features.csv
+
+Opis kolumn:
+	name		[ciąg znaków]					Nazwa utworu
+	album		[ciąg znaków]					Nazwa albumu, na którym znajduje się utwór
+	artists		[lista zawierająca ciągi znaków]		Lista zawierająca nazwy wykonawców utworu
+									UWAGA: Zawartością kolumny jest tekstowa reprezentacja listy, której elementami są ciągi znaków reprezentujące nazwy wykonawców utworu, których liczba ≥ 1. Reprezentacja tekstowa odpowiada zapisowi listy wykorzystywanym przez język i platformę programowania Python, np. ['Pierwszy wykonawca', 'Drugi wykonawca'] dla więcej niż jednego wykonawcy, lub też ['Jedyny wykonawca'] jeżeli wykonawca jest tylko jeden.
+	explicit	[wartość logiczna ∈ {True, False}]		Informacja o wulgarnej zawartości treści utworu
+	danceability	[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Współczynnik 'taneczności' utworu
+	energy		[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Współczynnik 'energetyczności' lub 'aktywności' utworu
+	speechiness	[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Stosunek zawartości lirycznej do długości utworu
+	acousticness	[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Znoramalizowana miara ufności klasyfikacji utworu jako akustycznego
+	liveness	[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Znoramalizowana miara ufności obecności publiczności w nagraniu; prawdopodobieństwo, że utwór wykonywany był na żywo, z udziałem publiczności.
+	valence		[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Znomarlizowany współczynnik pozytywnego odbioru utworu; 1 - bardzo pozytywny, 0 - bardzo negatywny
+	tempo		[wartość zmiennoprzecinkowa]			Tempo utworu w BPM
+	duration_ms	[liczba naturalna]				Długość nagrania w milisekundach
+	year		[liczba naturalna]				Rok publikacji utworu
+
+Technologia realizacji rozwiazania:
+	Apache PIG
+
+Polecenie:
+	Biorąc pod uwagę wyłącznie utwory, których wartość współczynnika valence wynosi nie mniej niż pierwszy kwartyl całego zbioru, wyznaczyć osobno dla podzbiorów utworów zawierających wulgaryzmy (explicit = True) i pozostałych (explicit = False) po trzech różnych wykonawców, w dorobku których znalazł się najbardziej taneczny utwór (największa wartość współczynnika danceability).
+	UWAGA: Ponieważ wartość kolumny artists jest kolekcją, za wykonawcę utworu przyjąć wyłacznie pierwszego znajdującego się na liście.
+*/
+register /home/siedlaczkaro/datafu-pig-1.6.1.jar
+DEFINE Median datafu.pig.stats.StreamingMedian();
+
 tracks_tmp = LOAD '/input/assignments/spotify_tracks/spotify_tracks_features.csv' USING org.apache.pig.piggybank.storage.CSVLoader AS(
 	Name:chararray,
     Album:chararray,
@@ -14,10 +44,16 @@ tracks_tmp = LOAD '/input/assignments/spotify_tracks/spotify_tracks_features.csv
     Year:int);
   
 tracks_without_header = FILTER tracks_tmp BY Name != 'name';  -- usuniecie headera
-tracks_filtered_valence = FILTER tracks_without_header BY (double)Valence > 0.25; -- >Q1
-tracks_filtered = FILTER tracks_without_header BY (double)Valence
 
-tracks = FOREACH tracks_filtered_valence GENERATE 
+valence_q2 = FOREACH (GROUP tracks_without_header ALL) GENERATE FLATTEN(Median(tracks_without_header.Valence)) as firstMedian; --znalezienie progu 2 kwartylu
+tracks_filtered_q2 = FILTER tracks_without_header BY (double)Valence < valence_q2.firstMedian; 
+
+valence_q1 = FOREACH (GROUP tracks_filtered_q2 ALL) GENERATE FLATTEN(Median(tracks_filtered_q2.Valence)) as SecondMedian; --znalezienie progu 1 kwartylu
+tracks_filtered_q1 = FILTER tracks_without_header BY (double)Valence > valence_q1.SecondMedian; --dane powyzej 1 kwartylu
+
+--DUMP valence_q1 --pierwszy kwartyl
+
+tracks = FOREACH tracks_filtered_q1 GENERATE 
     Name,
     Explicit,
     Danceability,
