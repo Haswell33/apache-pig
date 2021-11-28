@@ -25,7 +25,7 @@ Polecenie:
 	Biorąc pod uwagę wyłącznie utwory, których wartość współczynnika valence wynosi nie mniej niż pierwszy kwartyl całego zbioru, wyznaczyć osobno dla podzbiorów utworów zawierających wulgaryzmy (explicit = True) i pozostałych (explicit = False) po trzech różnych wykonawców, w dorobku których znalazł się najbardziej taneczny utwór (największa wartość współczynnika danceability).
 	UWAGA: Ponieważ wartość kolumny artists jest kolekcją, za wykonawcę utworu przyjąć wyłacznie pierwszego znajdującego się na liście.
 */
-register /home/siedlaczkaro/datafu-pig-1.6.1.jar
+register /home/siedlaczkaro/datafu-pig-1.6.1.jar --https://download.jar-download.com/cache_jars/org.apache.datafu/datafu-pig/1.6.1/jar_files.zip
 DEFINE Median datafu.pig.stats.StreamingMedian();
 
 tracks_tmp = LOAD '/input/assignments/spotify_tracks/spotify_tracks_features.csv' USING org.apache.pig.piggybank.storage.CSVLoader AS(
