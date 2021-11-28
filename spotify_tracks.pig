@@ -6,7 +6,12 @@ Opis kolumn:
 	name		[ciąg znaków]					Nazwa utworu
 	album		[ciąg znaków]					Nazwa albumu, na którym znajduje się utwór
 	artists		[lista zawierająca ciągi znaków]		Lista zawierająca nazwy wykonawców utworu
-									UWAGA: Zawartością kolumny jest tekstowa reprezentacja listy, której elementami są ciągi znaków reprezentujące nazwy wykonawców utworu, których liczba ≥ 1. Reprezentacja tekstowa odpowiada zapisowi listy wykorzystywanym przez język i platformę programowania Python, np. ['Pierwszy wykonawca', 'Drugi wykonawca'] dla więcej niż jednego wykonawcy, lub też ['Jedyny wykonawca'] jeżeli wykonawca jest tylko jeden.
+									UWAGA: Zawartością kolumny jest tekstowa reprezentacja listy, której 
+									       elementami są ciągi znaków reprezentujące nazwy wykonawców utworu, 
+									       których liczba ≥ 1. Reprezentacja tekstowa odpowiada zapisowi listy 
+									       wykorzystywanym przez język i platformę programowania Python, 
+									       np. ['Pierwszy wykonawca', 'Drugi wykonawca'] dla więcej niż 
+									       jednego wykonawcy, lub też ['Jedyny wykonawca'] jeżeli wykonawca jest tylko jeden.
 	explicit	[wartość logiczna ∈ {True, False}]		Informacja o wulgarnej zawartości treści utworu
 	danceability	[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Współczynnik 'taneczności' utworu
 	energy		[wartość zmiennoprzecinkowa ∈ <0.0, 1.0>]	Współczynnik 'energetyczności' lub 'aktywności' utworu
@@ -22,7 +27,9 @@ Technologia realizacji rozwiazania:
 	Apache PIG
 
 Polecenie:
-	Biorąc pod uwagę wyłącznie utwory, których wartość współczynnika valence wynosi nie mniej niż pierwszy kwartyl całego zbioru, wyznaczyć osobno dla podzbiorów utworów zawierających wulgaryzmy (explicit = True) i pozostałych (explicit = False) po trzech różnych wykonawców, w dorobku których znalazł się najbardziej taneczny utwór (największa wartość współczynnika danceability).
+	Biorąc pod uwagę wyłącznie utwory, których wartość współczynnika valence wynosi nie mniej niż pierwszy kwartyl całego zbioru, 
+	wyznaczyć osobno dla podzbiorów utworów zawierających wulgaryzmy (explicit = True) i pozostałych (explicit = False) po trzech różnych wykonawców, 
+	w dorobku których znalazł się najbardziej taneczny utwór (największa wartość współczynnika danceability).
 	UWAGA: Ponieważ wartość kolumny artists jest kolekcją, za wykonawcę utworu przyjąć wyłacznie pierwszego znajdującego się na liście.
 */
 register /home/siedlaczkaro/datafu-pig-1.6.1.jar --https://download.jar-download.com/cache_jars/org.apache.datafu/datafu-pig/1.6.1/jar_files.zip
